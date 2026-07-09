@@ -10,7 +10,7 @@ const nav = [
     items: [
       { label: 'Weekly Input', href: '/resource' },
       { label: 'Organogram', href: '/organogram' },
-      { label: 'Availability', href: '/availability' },
+      //{ label: 'Availability', href: '/availability' },
       { label: 'Hire Gap', href: '/hire-gap' },
     ]
   },
