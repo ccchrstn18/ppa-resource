@@ -105,11 +105,17 @@ export default function ResourcePage() {
     async function loadEffort() {
       setLoading(true)
       try {
-        const { data } = await supabase
+        const dateStr = formatDate(weekStart)
+        console.log('Loading effort for week:', dateStr)
+        
+        const { data, error } = await supabase
           .from('weekly_effort')
           .select('*')
-          .eq('week_commencing', formatDate(weekStart))
+          .eq('week_commencing', dateStr)
           .eq('week_number', 1)
+
+        console.log('Effort data:', data)
+        console.log('Effort error:', error)
 
         const map: EffortMap = {}
         if (data) {
@@ -117,9 +123,10 @@ export default function ResourcePage() {
             map[`${row.people_id}-${row.project_id}`] = row.effort_pct
           })
         }
+        console.log('Effort map:', map)
         setEffort(map)
       } catch (e) {
-        console.error(e)
+        console.error('Load effort error:', e)
       }
       setLoading(false)
     }
@@ -148,11 +155,16 @@ export default function ResourcePage() {
   async function handleSave() {
     setSaving(true)
     try {
-      await supabase
+      const dateStr = formatDate(weekStart)
+      console.log('Saving for week:', dateStr)
+
+      const deleteResult = await supabase
         .from('weekly_effort')
         .delete()
-        .eq('week_commencing', formatDate(weekStart))
+        .eq('week_commencing', dateStr)
         .eq('week_number', 1)
+      
+      console.log('Delete result:', deleteResult)
 
       const rows: any[] = []
       people.forEach(person => {
@@ -162,7 +174,7 @@ export default function ResourcePage() {
             rows.push({
               people_id: person.people_id,
               project_id: project.project_id,
-              week_commencing: formatDate(weekStart),
+              week_commencing: dateStr,
               week_number: 1,
               effort_pct: pct,
               submitted_by: 'Christian Domingo',
@@ -171,14 +183,18 @@ export default function ResourcePage() {
         })
       })
 
+      console.log('Rows to insert:', rows)
+
       if (rows.length > 0) {
-        await supabase.from('weekly_effort').insert(rows)
+        const insertResult = await supabase
+          .from('weekly_effort').insert(rows)
+        console.log('Insert result:', insertResult)
       }
 
       setSaved(true)
       setTimeout(() => setSaved(false), 3000)
     } catch (e) {
-      console.error(e)
+      console.error('Save error:', e)
     }
     setSaving(false)
   }
