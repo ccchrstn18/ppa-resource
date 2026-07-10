@@ -77,3 +77,45 @@ html, body {
 ::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--bg4); border-radius: 3px; }
+
+button:not(:disabled):hover {
+  filter: brightness(0.92);
+  transition: filter 0.15s ease;
+}
+
+button:not(:disabled):active {
+  transform: scale(0.97);
+  transition: transform 0.1s ease;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+select:hover {
+  border-color: var(--brand-teal) !important;
+  transition: border-color 0.15s ease;
+  cursor: pointer;
+}
+
+input[type="number"]:focus {
+  outline: none;
+  background: var(--bg3) !important;
+}
+
+input[type="date"]:hover {
+  border-color: var(--brand-teal) !important;
+  transition: border-color 0.15s ease;
+  cursor: pointer;
+}
+
+input[type="text"]:hover {
+  border-color: var(--brand-teal) !important;
+  transition: border-color 0.15s ease;
+}
+
+tr:hover td {
+  background: var(--bg3) !important;
+  transition: background 0.1s ease;
+}

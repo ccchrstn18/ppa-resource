@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
+import LoadingSpinner from '@/components/LoadingSpinner'
 
 interface Project {
   project_id: number
@@ -323,9 +324,7 @@ export default function HireGapPage() {
 
       {!selectedProject ? (
         portfolioLoading ? (
-          <div style={{ textAlign: 'center', padding: 40, color: 'var(--text3)' }}>
-            Loading portfolio...
-          </div>
+          <LoadingSpinner text="Loading portfolio..." />
         ) : portfolio.length === 0 ? (
           <div style={{
             textAlign: 'center', padding: '60px 20px',
@@ -414,7 +413,7 @@ export default function HireGapPage() {
           </>
         )
       ) : loading ? (
-        <div style={{ textAlign: 'center', padding: 40, color: 'var(--text3)' }}>Loading...</div>
+        <LoadingSpinner text="Loading hire gap..." />
       ) : (
         <>
           {/* Stats */}

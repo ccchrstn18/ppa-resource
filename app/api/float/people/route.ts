@@ -11,7 +11,7 @@ async function fetchPage(endpoint: string, page: number) {
         Authorization: `Bearer ${FLOAT_TOKEN}`,
         Accept: 'application/json',
       },
-      next: { revalidate: 3600 }
+      next: { revalidate: 300 }
     }
   )
   if (!res.ok) return []
@@ -43,7 +43,6 @@ function mapDepartment(dept: string | null): string | null {
   if (d === 'business operations') return 'Directors'
   if (d === 'technical') return 'Directors'
   if (d === 'business support') return 'Document Control'
-  // exclude everything else
   return null
 }
 
@@ -95,28 +94,14 @@ export async function GET() {
         if (EXCLUDE_TITLES.some(t => p.job_title?.toLowerCase().includes(t))) return false
         return true
       })
-const DEPARTMENT_ORDER = [
-  'Directors',
-  'Project Management',
-  'Electrical',
-  'Mechanical',
-  'BIM',
-  'Building Physics',
-  'ICT & Security',
-  'Document Control',
-  'Other',
-]
 
-shaped.sort((a: any, b: any) => {
-  // first sort by region
-  const ri = REGION_ORDER.indexOf(a.region) - REGION_ORDER.indexOf(b.region)
-  if (ri !== 0) return ri
-  // then by department order
-  const di = DEPARTMENT_ORDER.indexOf(a.department) - DEPARTMENT_ORDER.indexOf(b.department)
-  if (di !== 0) return di
-  // then alphabetically by name
-  return a.name.localeCompare(b.name)
-})
+    shaped.sort((a: any, b: any) => {
+      const ri = REGION_ORDER.indexOf(a.region) - REGION_ORDER.indexOf(b.region)
+      if (ri !== 0) return ri
+      const di = a.department.localeCompare(b.department)
+      if (di !== 0) return di
+      return a.name.localeCompare(b.name)
+    })
 
     return NextResponse.json(shaped)
   } catch (e) {

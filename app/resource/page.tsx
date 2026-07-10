@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
+import LoadingSpinner from '@/components/LoadingSpinner'
 
 interface Person {
   people_id: number
@@ -15,6 +16,7 @@ interface Project {
   project_id: number
   name: string
   project_code: string | null
+  region: string | null
 }
 
 interface EffortMap {
@@ -75,6 +77,21 @@ function getCheckBg(total: number) {
   return 'rgba(238,0,0,0.08)'
 }
 
+function getRegionBadgeStyle(region: string) {
+  if (region === 'UK') return {
+    background: 'rgba(33,78,95,0.12)',
+    color: '#214E5F',
+  }
+  if (region === 'UAE') return {
+    background: 'rgba(173,201,22,0.15)',
+    color: '#7a9200',
+  }
+  return {
+    background: 'rgba(88,72,184,0.12)',
+    color: '#5848b8',
+  }
+}
+
 export default function ResourcePage() {
   const [people, setPeople] = useState<Person[]>([])
   const [projects, setProjects] = useState<Project[]>([])
@@ -105,17 +122,11 @@ export default function ResourcePage() {
     async function loadEffort() {
       setLoading(true)
       try {
-        const dateStr = formatDate(weekStart)
-        console.log('Loading effort for week:', dateStr)
-        
         const { data, error } = await supabase
           .from('weekly_effort')
           .select('*')
-          .eq('week_commencing', dateStr)
+          .eq('week_commencing', formatDate(weekStart))
           .eq('week_number', 1)
-
-        console.log('Effort data:', data)
-        console.log('Effort error:', error)
 
         const map: EffortMap = {}
         if (data) {
@@ -123,10 +134,9 @@ export default function ResourcePage() {
             map[`${row.people_id}-${row.project_id}`] = row.effort_pct
           })
         }
-        console.log('Effort map:', map)
         setEffort(map)
       } catch (e) {
-        console.error('Load effort error:', e)
+        console.error(e)
       }
       setLoading(false)
     }
@@ -148,23 +158,16 @@ export default function ResourcePage() {
     return projects.reduce((sum, p) => sum + getEffort(people_id, p.project_id), 0)
   }
 
-  function toggleRegion(region: string) {
-    setCollapsed(prev => ({ ...prev, [region]: !prev[region] }))
-  }
-
   async function handleSave() {
     setSaving(true)
     try {
       const dateStr = formatDate(weekStart)
-      console.log('Saving for week:', dateStr)
 
-      const deleteResult = await supabase
+      await supabase
         .from('weekly_effort')
         .delete()
         .eq('week_commencing', dateStr)
         .eq('week_number', 1)
-      
-      console.log('Delete result:', deleteResult)
 
       const rows: any[] = []
       people.forEach(person => {
@@ -183,29 +186,27 @@ export default function ResourcePage() {
         })
       })
 
-      console.log('Rows to insert:', rows)
-
       if (rows.length > 0) {
-        const insertResult = await supabase
-          .from('weekly_effort').insert(rows)
-        console.log('Insert result:', insertResult)
+        await supabase.from('weekly_effort').insert(rows)
       }
 
       setSaved(true)
       setTimeout(() => setSaved(false), 3000)
     } catch (e) {
-      console.error('Save error:', e)
+      console.error(e)
     }
     setSaving(false)
   }
 
   function prevWeek() { setWeekStart(w => addWeeks(w, -1)) }
   function nextWeek() { setWeekStart(w => addWeeks(w, 1)) }
+  function toggleRegion(region: string) {
+    setCollapsed(prev => ({ ...prev, [region]: !prev[region] }))
+  }
 
   const regions = REGION_ORDER.filter(r => people.some(p => p.region === r))
   const overallocated = people.filter(p => getWeekTotal(p.people_id) > 100).length
   const active = people.filter(p => getWeekTotal(p.people_id) > 0).length
-  const colSpanTotal = 2 + projects.length + 1
 
   return (
     <div>
@@ -289,9 +290,7 @@ export default function ResourcePage() {
 
       {/* Matrix */}
       {loading ? (
-        <div style={{ color: 'var(--text3)', padding: 40, textAlign: 'center' }}>
-          Loading...
-        </div>
+        <LoadingSpinner text="Loading people and projects..." />
       ) : (
         <div style={{
           overflowX: 'auto',
@@ -343,10 +342,23 @@ export default function ResourcePage() {
                       verticalAlign: 'top',
                       color: 'var(--text2)',
                       lineHeight: 1.3,
-                      letterSpacing: '0.04em',
                     }}
                   >
-                    {p.name.toUpperCase()}
+                    {p.region && (
+                      <div style={{
+                        marginBottom: 4,
+                        fontSize: 8,
+                        fontWeight: 700,
+                        padding: '1px 5px',
+                        borderRadius: 999,
+                        display: 'inline-block',
+                        letterSpacing: '0.06em',
+                        ...getRegionBadgeStyle(p.region),
+                      }}>
+                        {p.region}
+                      </div>
+                    )}
+                    <div>{p.name.toUpperCase()}</div>
                   </th>
                 ))}
                 <th style={{
@@ -387,14 +399,14 @@ export default function ResourcePage() {
                       style={{ cursor: 'pointer' }}
                     >
                       <td
-                        colSpan={colSpanTotal}
+                        colSpan={2 + projects.length + 1}
                         style={{
-                          padding: '10px 16px',
+                          padding: '8px 12px',
                           background: 'var(--brand-teal)',
                           color: '#ffffff',
                           fontWeight: 700,
-                          fontSize: 13,
-                          letterSpacing: '0.12em',
+                          fontSize: 12,
+                          letterSpacing: '0.1em',
                           borderBottom: '1px solid var(--border)',
                           borderTop: '2px solid var(--border2)',
                           userSelect: 'none',
@@ -422,9 +434,9 @@ export default function ResourcePage() {
                           {/* Department header */}
                           <tr>
                             <td
-                              colSpan={colSpanTotal}
+                              colSpan={2 + projects.length + 1}
                               style={{
-                                padding: '5px 16px 5px 32px',
+                                padding: '5px 16px 5px 24px',
                                 background: 'var(--bg3)',
                                 color: 'var(--text2)',
                                 fontWeight: 700,
@@ -457,7 +469,9 @@ export default function ResourcePage() {
                                   paddingLeft: 48,
                                   position: 'sticky',
                                   left: 0,
-                                  background: i % 2 === 0 ? 'var(--bg)' : 'var(--bg2)',
+                                  background: total === 0
+                                    ? 'rgba(238,0,0,0.04)'
+                                    : i % 2 === 0 ? 'var(--bg)' : 'var(--bg2)',
                                   zIndex: 1,
                                 }}>
                                   {person.name}
@@ -468,7 +482,9 @@ export default function ResourcePage() {
                                   fontSize: 11,
                                   position: 'sticky',
                                   left: 180,
-                                  background: i % 2 === 0 ? 'var(--bg)' : 'var(--bg2)',
+                                  background: total === 0
+                                    ? 'rgba(238,0,0,0.04)'
+                                    : i % 2 === 0 ? 'var(--bg)' : 'var(--bg2)',
                                   zIndex: 1,
                                 }}>
                                   {person.job_title}

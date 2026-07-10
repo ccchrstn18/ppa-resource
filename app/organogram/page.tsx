@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
+import LoadingSpinner from '@/components/LoadingSpinner'
 
 interface Person {
   people_id: number
@@ -521,7 +522,7 @@ export default function OrganogramPage() {
           Select a project to view its organogram
         </div>
       ) : loading ? (
-        <div style={{ textAlign: 'center', padding: 40, color: 'var(--text3)' }}>Loading...</div>
+        <LoadingSpinner text="Loading organogram..." />
       ) : (
         <>
           {/* Edit panel */}

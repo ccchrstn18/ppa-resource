@@ -2,7 +2,6 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import Image from 'next/image'
 
 const nav = [
   {
@@ -10,7 +9,6 @@ const nav = [
     items: [
       { label: 'Weekly Input', href: '/resource' },
       { label: 'Organogram', href: '/organogram' },
-      //{ label: 'Availability', href: '/availability' },
       { label: 'Hire Gap', href: '/hire-gap' },
     ]
   },
@@ -37,25 +35,32 @@ export default function Sidebar() {
       overflow: 'hidden',
     }}>
       {/* Logo */}
-      <div style={{
-        padding: '16px',
-        borderBottom: '1px solid var(--border)',
-        display: 'flex',
-        alignItems: 'center',
-        gap: 10,
-      }}>
+      <Link
+        href="/"
+        style={{ textDecoration: 'none', color: 'inherit' }}
+      >
         <div style={{
-          fontSize: 18,
-          fontWeight: 700,
-          color: 'var(--brand-green)',
-          letterSpacing: '-0.5px',
-        }}>ppa</div>
-        <div style={{
-          fontSize: 10,
-          color: 'var(--text3)',
-          lineHeight: 1.2,
-        }}>Mission Critical<br />Solutions</div>
-      </div>
+          padding: '16px',
+          borderBottom: '1px solid var(--border)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 10,
+          cursor: 'pointer',
+          transition: 'background 0.15s',
+        }}>
+          <div style={{
+            fontSize: 18,
+            fontWeight: 700,
+            color: 'var(--brand-green)',
+            letterSpacing: '-0.5px',
+          }}>ppa</div>
+          <div style={{
+            fontSize: 10,
+            color: 'var(--text3)',
+            lineHeight: 1.2,
+          }}>Mission Critical<br />Solutions</div>
+        </div>
+      </Link>
 
       {/* Nav */}
       <nav style={{ flex: 1, padding: '12px 0', overflowY: 'auto' }}>
@@ -73,16 +78,26 @@ export default function Sidebar() {
             {items.map(({ label, href }) => {
               const active = pathname === href
               return (
-                <Link key={href} href={href} style={{
-                  display: 'block',
-                  padding: '7px 16px',
-                  fontSize: 13,
-                  color: active ? 'var(--brand-green)' : 'var(--text2)',
-                  background: active ? 'var(--bg3)' : 'transparent',
-                  borderLeft: active ? '2px solid var(--brand-green)' : '2px solid transparent',
-                  textDecoration: 'none',
-                  transition: 'all 0.15s',
-                }}>
+                <Link
+                  key={href}
+                  href={href}
+                  style={{
+                    display: 'block',
+                    padding: '7px 16px',
+                    fontSize: 13,
+                    color: active ? 'var(--brand-green)' : 'var(--text2)',
+                    background: active ? 'var(--bg3)' : 'transparent',
+                    borderLeft: active ? '2px solid var(--brand-green)' : '2px solid transparent',
+                    textDecoration: 'none',
+                    transition: 'all 0.15s',
+                  }}
+                  onMouseEnter={e => {
+                    if (!active) e.currentTarget.style.background = 'var(--bg3)'
+                  }}
+                  onMouseLeave={e => {
+                    if (!active) e.currentTarget.style.background = 'transparent'
+                  }}
+                >
                   {label}
                 </Link>
               )

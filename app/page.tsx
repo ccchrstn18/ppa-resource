@@ -1,3 +1,5 @@
+'use client'
+
 import Link from 'next/link'
 
 export default function HomePage() {
@@ -42,15 +44,28 @@ export default function HomePage() {
           },
         ].map(card => (
           <Link key={card.href} href={card.href} style={{ textDecoration: 'none' }}>
-            <div style={{
-              background: 'var(--bg2)',
-              border: '1px solid var(--border)',
-              borderRadius: 8,
-              padding: '20px 20px 16px',
-              cursor: 'pointer',
-              height: '100%',
-              boxSizing: 'border-box',
-            }}>
+            <div
+              style={{
+                background: 'var(--bg2)',
+                border: '1px solid var(--border)',
+                borderRadius: 8,
+                padding: '20px 20px 16px',
+                cursor: 'pointer',
+                height: '100%',
+                boxSizing: 'border-box',
+                transition: 'border-color 0.15s, background 0.15s, box-shadow 0.15s',
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.borderColor = 'var(--brand-teal)'
+                e.currentTarget.style.background = 'var(--bg3)'
+                e.currentTarget.style.boxShadow = '0 2px 8px rgba(33,78,95,0.1)'
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.borderColor = 'var(--border)'
+                e.currentTarget.style.background = 'var(--bg2)'
+                e.currentTarget.style.boxShadow = 'none'
+              }}
+            >
               <div style={{
                 fontSize: 10,
                 fontWeight: 700,
